@@ -65,9 +65,6 @@ contract EulerStrategy is BaseStrategy {
         amountAdded = int256(currentBalance) - int256(balance);
         if (amountAdded > 0) {
             eToken.withdraw(0, uint256(amountAdded));
-            uint256 totalFee = (uint256(amountAdded) * fee) / FEE_PRECISION;
-            strategyToken.safeTransfer(feeTo, totalFee);
-            amountAdded -= int256(totalFee);
         }
     }
 
