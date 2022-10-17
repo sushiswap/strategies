@@ -1,6 +1,13 @@
 [profile.default]
-src = 'src'
-out = 'out'
+fuzz_runs = 256
 libs = ['lib']
+optimizer = true
+optimizer_runs = 1000000
+out = 'out'
+src = 'src'
+verbosity = 1
 
+[profile.ci]
+fuzz_runs = 100_000
+verbosity = 4
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
