@@ -238,9 +238,14 @@ abstract contract BaseStrategy is IStrategy, Owned {
         if (amount > 0) {
             // _harvest reported a profit
 
-            strategyToken.safeTransfer(address(bentoBox), contractBalance);
+            uint256 totalFee = (contractBalance * fee) / FEE_PRECISION;
+            uint256 deltaProfit = contractBalance - totalFee;
 
-            return int256(contractBalance);
+            strategyToken.safeTransfer(feeTo, totalFee);
+
+            strategyToken.safeTransfer(address(bentoBox), deltaProfit);
+
+            return int256(deltaProfit);
         } else if (contractBalance > 0) {
             // _harvest reported a loss but we have some tokens sitting in the contract
 
@@ -248,10 +253,13 @@ abstract contract BaseStrategy is IStrategy, Owned {
 
             if (diff > 0) {
                 // We still made some profit.
+                uint256 totalFee = (uint256(diff) * fee) / FEE_PRECISION;
+                uint256 deltaProfit = uint256(diff) - totalFee;
 
+                strategyToken.safeTransfer(feeTo, totalFee);
                 // Send the profit to BentoBox and reinvest the rest.
-                strategyToken.safeTransfer(address(bentoBox), uint256(diff));
-                _skim(contractBalance - uint256(diff));
+                strategyToken.safeTransfer(address(bentoBox), deltaProfit);
+                _skim(contractBalance - deltaProfit);
             } else {
                 // We made a loss but we have some tokens we can reinvest.
 
