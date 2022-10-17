@@ -254,12 +254,12 @@ abstract contract BaseStrategy is IStrategy, Owned {
             if (diff > 0) {
                 // We still made some profit.
                 uint256 totalFee = (uint256(diff) * fee) / FEE_PRECISION;
-                uint256 deltaProfit = uint256(diff) - totalFee;
+                diff = diff - int256(totalFee);
 
                 strategyToken.safeTransfer(feeTo, totalFee);
                 // Send the profit to BentoBox and reinvest the rest.
-                strategyToken.safeTransfer(address(bentoBox), deltaProfit);
-                _skim(contractBalance - deltaProfit);
+                strategyToken.safeTransfer(address(bentoBox), uint256(diff));
+                _skim(contractBalance - uint256(diff));
             } else {
                 // We made a loss but we have some tokens we can reinvest.
 
