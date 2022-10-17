@@ -6,6 +6,8 @@ import {IEulerEToken} from "../interfaces/euler/IEulerEToken.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
+/// @title Euler Strategy
+/// @dev Lend token on Euler
 contract EulerStrategy is BaseStrategy {
     using SafeTransferLib for ERC20;
 
