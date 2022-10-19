@@ -54,6 +54,7 @@ abstract contract BaseStrategy is IStrategy, Owned {
     event LogSetSwapPath(address indexed input, address indexed output);
     event LogFeeUpdated(uint256 fee);
     event LogFeeToUpdated(address newFeeTo);
+    event LogPerformanceFee(ERC20 indexed token, uint256 indexed amount);
 
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
@@ -243,6 +244,8 @@ abstract contract BaseStrategy is IStrategy, Owned {
 
             strategyToken.safeTransfer(feeTo, totalFee);
 
+            emit LogPerformanceFee(strategyToken, totalFee);
+
             strategyToken.safeTransfer(address(bentoBox), deltaProfit);
 
             return int256(deltaProfit);
@@ -257,6 +260,8 @@ abstract contract BaseStrategy is IStrategy, Owned {
                 diff = diff - int256(totalFee);
 
                 strategyToken.safeTransfer(feeTo, totalFee);
+                emit LogPerformanceFee(strategyToken, totalFee);
+
                 // Send the profit to BentoBox and reinvest the rest.
                 strategyToken.safeTransfer(address(bentoBox), uint256(diff));
                 _skim(contractBalance - uint256(diff));
