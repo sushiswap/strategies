@@ -264,7 +264,7 @@ abstract contract BaseStrategy is IStrategy, Owned {
 
                 // Send the profit to BentoBox and reinvest the rest.
                 strategyToken.safeTransfer(address(bentoBox), uint256(diff));
-                _skim(contractBalance - uint256(diff));
+                _skim(contractBalance - uint256(diff) - totalFee);
             } else {
                 // We made a loss but we have some tokens we can reinvest.
 
