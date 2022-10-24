@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.7;
+pragma solidity 0.8.10;
 
 import "../BaseStrategy.sol";
 import "../interfaces/xsushi/ISushiBar.sol";
@@ -36,7 +36,7 @@ contract SushiBarStrategy is BaseStrategy {
             _owner
         )
     {
-        sushiBar = _sushiBar;
+        sushiBar = ISushiBar(_sushiBar);
     }
 
     function _skim(uint256 amount) internal override {
