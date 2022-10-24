@@ -106,4 +106,13 @@ contract SushiStrategyTest is Test {
         assertEq(feeToBalance, ((tokensEarned * STRATEGY_FEE) / 1e18));
         assertEq(tokensEarned, (elasticDiff + feeToBalance));
     }
+
+    function testShouldExit() public {
+        vm.startPrank(bentoBoxOwner);
+        bentoBox.setStrategy(address(sushiToken), address(0));
+        skip(2 weeks);
+        bentoBox.setStrategy(address(sushiToken), address(0));
+
+        assertEq(ERC20(sushiBar).balanceOf(address(sushiBarStrategy)), 0);
+    }
 }
