@@ -11,7 +11,15 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 contract SushiBarStrategy is BaseStrategy {
     using SafeTransferLib for ERC20;
 
+    /*//////////////////////////////////////////////////////////////
+                                ADDRESSES
+    //////////////////////////////////////////////////////////////*/
+
     ISushiBar public immutable sushiBar;
+
+    /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice sets the strategy configurations
     /// @param _bentoBox address of the bentobox
