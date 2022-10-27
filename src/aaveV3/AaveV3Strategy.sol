@@ -31,6 +31,7 @@ contract AaveV3Strategy is BaseStrategy {
     /// @param _strategyExecutor address of the executor
     /// @param _feeTo address of the fee recipient
     /// @param _owner address of the owner of the strategy
+    /// @param _fee fee of the strategy
     /// @param _aaveV3Pool address of aave pool
     /// @param _aToken address of pool token
     /// @param _incentiveController address of incentive / reward controller
@@ -40,6 +41,7 @@ contract AaveV3Strategy is BaseStrategy {
         address _strategyExecutor,
         address _feeTo,
         address _owner,
+        uint256 _fee,
         address _aaveV3Pool,
         address _aToken,
         address _incentiveController
@@ -49,7 +51,8 @@ contract AaveV3Strategy is BaseStrategy {
             _strategyToken,
             _strategyExecutor,
             _feeTo,
-            _owner
+            _owner,
+            _fee
         )
     {
         aaveV3Pool = IL2Pool(_aaveV3Pool);

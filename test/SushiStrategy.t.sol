@@ -33,11 +33,9 @@ contract SushiStrategyTest is Test {
             owner,
             feeTo,
             owner,
+            STRATEGY_FEE,
             sushiBar
         );
-
-        vm.prank(owner);
-        sushiBarStrategy.setFee(STRATEGY_FEE);
 
         vm.startPrank(bentoBoxOwner);
         bentoBox.setStrategy(address(sushiToken), address(sushiBarStrategy));

@@ -27,6 +27,7 @@ contract SushiBarStrategy is BaseStrategy {
     /// @param _strategyExecutor address of the executor
     /// @param _feeTo address of the fee recipient
     /// @param _owner address of the owner of the strategy
+    /// @param _fee fee for the strategy
     /// @param _sushiBar address of sushi bar contract
     constructor(
         address _bentoBox,
@@ -34,6 +35,7 @@ contract SushiBarStrategy is BaseStrategy {
         address _strategyExecutor,
         address _feeTo,
         address _owner,
+        uint256 _fee,
         address _sushiBar
     )
         BaseStrategy(
@@ -41,7 +43,8 @@ contract SushiBarStrategy is BaseStrategy {
             _strategyToken,
             _strategyExecutor,
             _feeTo,
-            _owner
+            _owner,
+            _fee
         )
     {
         sushiBar = ISushiBar(_sushiBar);

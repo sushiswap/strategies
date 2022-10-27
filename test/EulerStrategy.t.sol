@@ -41,12 +41,10 @@ contract CounterTest is Test {
             owner,
             feeTo,
             owner,
+            STRATEGY_FEE,
             EULER_MAINNET,
             address(eToken)
         );
-
-        vm.prank(owner);
-        eulerStrategy.setFee(STRATEGY_FEE);
 
         vm.startPrank(bentoBoxOwner);
         bentoBox.setStrategy(address(FTT), address(eulerStrategy));
