@@ -38,7 +38,6 @@ contract AaveV3StrategyTest is Test {
             owner,
             STRATEGY_FEE,
             aaveV3Pool,
-            address(aOptUSDC),
             aaveIncentiveController
         );
 

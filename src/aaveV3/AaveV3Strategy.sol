@@ -33,7 +33,6 @@ contract AaveV3Strategy is BaseStrategy {
     /// @param _owner address of the owner of the strategy
     /// @param _fee fee of the strategy
     /// @param _aaveV3Pool address of aave pool
-    /// @param _aToken address of pool token
     /// @param _incentiveController address of incentive / reward controller
     constructor(
         address _bentoBox,
@@ -43,7 +42,6 @@ contract AaveV3Strategy is BaseStrategy {
         address _owner,
         uint256 _fee,
         address _aaveV3Pool,
-        address _aToken,
         address _incentiveController
     )
         BaseStrategy(
@@ -56,7 +54,9 @@ contract AaveV3Strategy is BaseStrategy {
         )
     {
         aaveV3Pool = IL2Pool(_aaveV3Pool);
-        aToken = ERC20(_aToken);
+        aToken = ERC20(
+            IL2Pool(_aaveV3Pool).getReserveData(_strategyToken).aTokenAddress
+        );
         incentiveController = IAaveIncentivesController(_incentiveController);
     }
 
