@@ -36,13 +36,11 @@ contract AaveV3StrategyTest is Test {
             owner,
             feeTo,
             owner,
+            STRATEGY_FEE,
             aaveV3Pool,
             address(aOptUSDC),
             aaveIncentiveController
         );
-
-        vm.prank(owner);
-        aaveV3Strategy.setFee(STRATEGY_FEE);
 
         vm.startPrank(bentoBoxOwner);
         bentoBox.setStrategy(address(USDC), address(aaveV3Strategy));

@@ -13,6 +13,7 @@ contract EulerStrategyScript is Script {
         address strategyExecutor = 0xC1056bDFE993340326D2efADaCFDFd6Fab5Eb13c;
         address owner = 0x19B3Eb3Af5D93b77a5619b047De0EED7115A19e7;
         address feeTo = 0x19B3Eb3Af5D93b77a5619b047De0EED7115A19e7;
+        uint256 STRATEGY_FEE = 99e16; // 99%
 
         // uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast();
@@ -22,9 +23,11 @@ contract EulerStrategyScript is Script {
             strategyExecutor,
             feeTo,
             owner,
+            STRATEGY_FEE,
             euler,
             eToken
         );
+        console.log(address(es));
         vm.stopBroadcast();
     }
 }

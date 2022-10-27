@@ -28,6 +28,7 @@ contract EulerStrategy is BaseStrategy {
     /// @param _strategyExecutor address of the executor
     /// @param _feeTo address of the fee recipient
     /// @param _owner address of the owner of the strategy
+    /// @param _fee fee for the strategy
     /// @param _euler address of euler
     /// @param _eToken address of the eToken
     constructor(
@@ -36,6 +37,7 @@ contract EulerStrategy is BaseStrategy {
         address _strategyExecutor,
         address _feeTo,
         address _owner,
+        uint256 _fee,
         address _euler,
         address _eToken
     )
@@ -44,7 +46,8 @@ contract EulerStrategy is BaseStrategy {
             _strategyToken,
             _strategyExecutor,
             _feeTo,
-            _owner
+            _owner,
+            _fee
         )
     {
         euler = _euler;

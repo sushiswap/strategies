@@ -76,17 +76,22 @@ abstract contract BaseStrategy is IStrategy, Owned {
     /// @param _strategyExecutor address of the executor
     /// @param _feeTo address of the fee recipient
     /// @param _owner address of the owner of the strategy
+    /// @param _fee fee for the strategy
     constructor(
         address _bentoBox,
         address _strategyToken,
         address _strategyExecutor,
         address _feeTo,
-        address _owner
+        address _owner,
+        uint256 _fee
     ) Owned(_owner) {
         strategyToken = ERC20(_strategyToken);
         bentoBox = IBentoBoxMinimal(_bentoBox);
         strategyExecutors[_strategyExecutor] = true;
         feeTo = _feeTo;
+        if (_fee >= 1e18) revert InvalidFee();
+        fee = _fee;
+        emit LogFeeUpdated(_fee);
         emit LogSetStrategyExecutor(_strategyExecutor, true);
     }
 
