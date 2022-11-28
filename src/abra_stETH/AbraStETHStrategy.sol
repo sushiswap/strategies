@@ -16,6 +16,8 @@ contract AbraStETHStrategy is BaseStrategy {
 
     address public abraMultiSig;
 
+    int256 public lossValue;
+
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -54,7 +56,7 @@ contract AbraStETHStrategy is BaseStrategy {
     }
 
     function _harvest(uint256 balance) internal override returns (int256) {
-        return int256(0);
+        return int256(lossValue);
     }
 
     function _withdraw(uint256 amount) internal override {
@@ -62,4 +64,8 @@ contract AbraStETHStrategy is BaseStrategy {
     }
 
     function _exit() internal override {}
+
+    function setLossValue(int256 _val) public onlyExecutor {
+        lossValue = _val;
+    }
 }
