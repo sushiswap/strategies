@@ -54,7 +54,7 @@ contract AbraStETHStrategy is BaseStrategy {
     }
 
     function _harvest(uint256 balance) internal override returns (int256) {
-        return int256(1);
+        return int256(0);
     }
 
     function _withdraw(uint256 amount) internal override {
