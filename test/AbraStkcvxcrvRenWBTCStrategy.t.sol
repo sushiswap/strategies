@@ -4,7 +4,7 @@ pragma solidity 0.8.10;
 import "forge-std/Test.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {IBentoBoxMinimal} from "../src/interfaces/IBentoBoxMinimal.sol";
-import {AbraStETHStrategy} from "../src/abra/AbraStETHStrategy.sol";
+import {AbraStkcvxcrvRenWBTCStrategy} from "../src/abra/AbraStkcvxcrvRenWBTCStrategy.sol";
 
 contract SushiStrategyTest is Test {
     IBentoBoxMinimal bentoBox =
@@ -21,14 +21,15 @@ contract SushiStrategyTest is Test {
     address feeTo = address(0x6969);
 
     address abraMultiSig = 0x5f0DeE98360d8200b20812e174d139A1a633EDd2;
-    ERC20 yvCurve_stETH = ERC20(0xdCD90C7f6324cfa40d7169ef80b12031770B4325);
+    ERC20 stkcvxcrvRenWBTC_abra =
+        ERC20(0xB65eDE134521F0EFD4E943c835F450137dC6E83e);
 
-    AbraStETHStrategy abraStETHStrategy;
+    AbraStkcvxcrvRenWBTCStrategy abraStkcvxcrvRenWBTCStrategy;
 
     function setUp() public {
-        abraStETHStrategy = new AbraStETHStrategy(
+        abraStkcvxcrvRenWBTCStrategy = new AbraStkcvxcrvRenWBTCStrategy(
             address(bentoBox),
-            address(yvCurve_stETH),
+            address(stkcvxcrvRenWBTC_abra),
             owner,
             feeTo,
             owner,
@@ -38,28 +39,30 @@ contract SushiStrategyTest is Test {
 
         vm.startPrank(bentoBoxOwner);
         bentoBox.setStrategy(
-            address(yvCurve_stETH),
-            address(abraStETHStrategy)
+            address(stkcvxcrvRenWBTC_abra),
+            address(abraStkcvxcrvRenWBTCStrategy)
         );
         skip(2 weeks);
         bentoBox.setStrategy(
-            address(yvCurve_stETH),
-            address(abraStETHStrategy)
+            address(stkcvxcrvRenWBTC_abra),
+            address(abraStkcvxcrvRenWBTCStrategy)
         );
         bentoBox.setStrategyTargetPercentage(
-            address(yvCurve_stETH),
+            address(stkcvxcrvRenWBTC_abra),
             STRATEGY_TARGET_UTILIZATION
         );
-        bentoBox.harvest(address(yvCurve_stETH), true, 0);
+        bentoBox.harvest(address(stkcvxcrvRenWBTC_abra), true, 0);
         vm.stopPrank();
     }
 
     function testAbraHarvest() public {
-        bentoBox.harvest(address(yvCurve_stETH), true, 0);
-        uint256 abraMultiSigBalance = yvCurve_stETH.balanceOf(abraMultiSig);
+        bentoBox.harvest(address(stkcvxcrvRenWBTC_abra), true, 0);
+        uint256 abraMultiSigBalance = stkcvxcrvRenWBTC_abra.balanceOf(
+            abraMultiSig
+        );
 
         (, uint256 targetPercentage, uint256 balance) = bentoBox.strategyData(
-            address(yvCurve_stETH)
+            address(stkcvxcrvRenWBTC_abra)
         );
 
         assertEq(targetPercentage, STRATEGY_TARGET_UTILIZATION);
@@ -67,11 +70,13 @@ contract SushiStrategyTest is Test {
 
     function testShouldExit() public {
         vm.startPrank(bentoBoxOwner);
-        bentoBox.setStrategy(address(yvCurve_stETH), address(0));
+        bentoBox.setStrategy(address(stkcvxcrvRenWBTC_abra), address(0));
         skip(2 weeks);
-        bentoBox.setStrategy(address(yvCurve_stETH), address(0));
+        bentoBox.setStrategy(address(stkcvxcrvRenWBTC_abra), address(0));
 
-        uint256 elastic = bentoBox.totals(address(yvCurve_stETH)).elastic;
-        uint256 base = bentoBox.totals(address(yvCurve_stETH)).base;
+        uint256 elastic = bentoBox
+            .totals(address(stkcvxcrvRenWBTC_abra))
+            .elastic;
+        uint256 base = bentoBox.totals(address(stkcvxcrvRenWBTC_abra)).base;
     }
 }
