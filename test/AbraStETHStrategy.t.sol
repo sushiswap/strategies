@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {IBentoBoxMinimal} from "../src/interfaces/IBentoBoxMinimal.sol";
 import {AbraStETHStrategy} from "../src/abra/AbraStETHStrategy.sol";
+import {AbraExtract} from "../src/abra/AbraExtract.sol";
 
 contract SushiStrategyTest is Test {
     IBentoBoxMinimal bentoBox =
@@ -24,6 +25,7 @@ contract SushiStrategyTest is Test {
     ERC20 yvCurve_stETH = ERC20(0xdCD90C7f6324cfa40d7169ef80b12031770B4325);
 
     AbraStETHStrategy abraStETHStrategy;
+    AbraExtract abraExtract;
 
     function setUp() public {
         abraStETHStrategy = new AbraStETHStrategy(
@@ -34,6 +36,12 @@ contract SushiStrategyTest is Test {
             owner,
             STRATEGY_FEE,
             abraMultiSig
+        );
+
+        abraExtract = new AbraExtract(
+            msg.sender,
+            address(bentoBox),
+            address(abraStETHStrategy)
         );
 
         vm.startPrank(bentoBoxOwner);
@@ -54,9 +62,21 @@ contract SushiStrategyTest is Test {
         vm.stopPrank();
     }
 
+    function testLoopHarvest() public {
+        vm.prank(owner);
+        abraStETHStrategy.setStrategyExecutor(address(abraExtract), true);
+
+        bentoBox.harvest(address(yvCurve_stETH), true, 0);
+        abraExtract.loopHarvest();
+        uint256 abraMultiSigBalance = yvCurve_stETH.balanceOf(abraMultiSig);
+
+        console.log("Loop Balance: ", abraMultiSigBalance);
+    }
+
     function testAbraHarvest() public {
         bentoBox.harvest(address(yvCurve_stETH), true, 0);
         uint256 abraMultiSigBalance = yvCurve_stETH.balanceOf(abraMultiSig);
+        console.log("Balance: ", abraMultiSigBalance);
 
         (, uint256 targetPercentage, uint256 balance) = bentoBox.strategyData(
             address(yvCurve_stETH)

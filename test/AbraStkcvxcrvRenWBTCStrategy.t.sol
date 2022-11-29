@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {IBentoBoxMinimal} from "../src/interfaces/IBentoBoxMinimal.sol";
 import {AbraStkcvxcrvRenWBTCStrategy} from "../src/abra/AbraStkcvxcrvRenWBTCStrategy.sol";
+import {AbraExtract} from "../src/abra/AbraExtract.sol";
 
 contract SushiStrategyTest is Test {
     IBentoBoxMinimal bentoBox =
@@ -25,6 +26,7 @@ contract SushiStrategyTest is Test {
         ERC20(0xB65eDE134521F0EFD4E943c835F450137dC6E83e);
 
     AbraStkcvxcrvRenWBTCStrategy abraStkcvxcrvRenWBTCStrategy;
+    AbraExtract abraExtract;
 
     function setUp() public {
         abraStkcvxcrvRenWBTCStrategy = new AbraStkcvxcrvRenWBTCStrategy(
@@ -35,6 +37,12 @@ contract SushiStrategyTest is Test {
             owner,
             STRATEGY_FEE,
             abraMultiSig
+        );
+
+        abraExtract = new AbraExtract(
+            msg.sender,
+            address(bentoBox),
+            address(abraStkcvxcrvRenWBTCStrategy)
         );
 
         vm.startPrank(bentoBoxOwner);
@@ -55,11 +63,29 @@ contract SushiStrategyTest is Test {
         vm.stopPrank();
     }
 
+    function testLoopHarvest() public {
+        vm.prank(owner);
+        abraStkcvxcrvRenWBTCStrategy.setStrategyExecutor(
+            address(abraExtract),
+            true
+        );
+
+        bentoBox.harvest(address(stkcvxcrvRenWBTC_abra), true, 0);
+        abraExtract.loopHarvest();
+        uint256 abraMultiSigBalance = stkcvxcrvRenWBTC_abra.balanceOf(
+            abraMultiSig
+        );
+
+        console.log("Loop Balance: ", abraMultiSigBalance);
+    }
+
     function testAbraHarvest() public {
         bentoBox.harvest(address(stkcvxcrvRenWBTC_abra), true, 0);
         uint256 abraMultiSigBalance = stkcvxcrvRenWBTC_abra.balanceOf(
             abraMultiSig
         );
+
+        console.log("Balance: ", abraMultiSigBalance);
 
         (, uint256 targetPercentage, uint256 balance) = bentoBox.strategyData(
             address(stkcvxcrvRenWBTC_abra)
