@@ -53,7 +53,7 @@ contract SiloStrategy is BaseStrategy {
     {
         silo = ISilo(_silo);
         sToken = ERC20(
-            ISilo(_silo).assetStorage(strategyToken).collateralToken
+            ISilo(_silo).assetStorage(_strategyToken).collateralToken
         );
     }
 
@@ -68,7 +68,7 @@ contract SiloStrategy is BaseStrategy {
         returns (int256 amountAdded)
     {
         uint256 assetTotalDeposits = silo
-            .assetStorage(strategyToken)
+            .assetStorage(address(strategyToken))
             .collateralOnlyDeposits;
 
         uint256 currentBalance = (sToken.balanceOf(address(this))).toAmount(
@@ -79,7 +79,7 @@ contract SiloStrategy is BaseStrategy {
         amountAdded = int256(currentBalance) - int256(balance);
 
         if (amountAdded > 0) {
-            silo.withdraw(address(strategyToken), amountAdded, false);
+            silo.withdraw(address(strategyToken), uint256(amountAdded), false);
         }
     }
 
@@ -89,7 +89,7 @@ contract SiloStrategy is BaseStrategy {
 
     function _exit() internal override {
         uint256 assetTotalDeposits = silo
-            .assetStorage(strategyToken)
+            .assetStorage(address(strategyToken))
             .collateralOnlyDeposits;
 
         uint256 tokenBalance = (sToken.balanceOf(address(this))).toAmount(
@@ -97,7 +97,7 @@ contract SiloStrategy is BaseStrategy {
             sToken.totalSupply()
         );
 
-        uint256 available = strategyToken.balanceOf(silo);
+        uint256 available = strategyToken.balanceOf(address(silo));
 
         if (tokenBalance <= available) {
             // If there are more tokens available than our full position, take all based on aToken balance (continue if unsuccessful).
