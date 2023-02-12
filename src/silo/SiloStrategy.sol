@@ -69,7 +69,7 @@ contract SiloStrategy is BaseStrategy {
     {
         uint256 assetTotalDeposits = silo
             .assetStorage(address(strategyToken))
-            .collateralOnlyDeposits;
+            .totalDeposits;
 
         uint256 currentBalance = (sToken.balanceOf(address(this))).toAmount(
             assetTotalDeposits,
@@ -90,7 +90,7 @@ contract SiloStrategy is BaseStrategy {
     function _exit() internal override {
         uint256 assetTotalDeposits = silo
             .assetStorage(address(strategyToken))
-            .collateralOnlyDeposits;
+            .totalDeposits;
 
         uint256 tokenBalance = (sToken.balanceOf(address(this))).toAmount(
             assetTotalDeposits,
@@ -113,4 +113,19 @@ contract SiloStrategy is BaseStrategy {
     }
 
     function _harvestRewards() internal virtual override {}
+
+    function underlyingBalance()
+        external
+        view
+        returns (uint256 currentBalance)
+    {
+        uint256 assetTotalDeposits = silo
+            .assetStorage(address(strategyToken))
+            .totalDeposits;
+
+        currentBalance = (sToken.balanceOf(address(this))).toAmount(
+            assetTotalDeposits,
+            sToken.totalSupply()
+        );
+    }
 }
