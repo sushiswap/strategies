@@ -64,4 +64,52 @@ contract CounterTest is Test {
         assertEq(targetPercentage, STRATEGY_TARGET_UTILIZATION);
         assertEq(balance, siloStrategy.underlyingBalance() + 1);
     }
+
+    function testProfitHarvest() public {
+        uint256 balanceBefore = siloStrategy.underlyingBalance();
+
+        skip(4 weeks);
+        vm.roll(block.number + 1);
+
+        ISilo(silo).accrueInterest(address(strategyToken));
+
+        uint256 balanceAfter = siloStrategy.underlyingBalance();
+
+        uint256 tokensEarned = balanceAfter - balanceBefore;
+
+        assertGt(tokensEarned, 0);
+
+        uint256 elasticBefore = bentoBox.totals(address(strategyToken)).elastic;
+
+        vm.prank(owner);
+        siloStrategy.safeHarvest(elasticBefore, false, 0, false);
+
+        uint256 elasticAfter = bentoBox.totals(address(strategyToken)).elastic;
+
+        uint256 elasticDiff = elasticAfter - elasticBefore;
+
+        assertGt(elasticDiff, 0);
+
+        uint256 feeToBalance = strategyToken.balanceOf(feeTo);
+
+        assertEq(feeToBalance, ((tokensEarned * STRATEGY_FEE) / 1e18) - 1);
+        assertEq(tokensEarned, (elasticDiff + feeToBalance) + 1);
+    }
+
+    function testShouldExit() public {
+        uint256 elasticBefore = bentoBox.totals(address(strategyToken)).elastic;
+
+        vm.startPrank(bentoBoxOwner);
+        bentoBox.setStrategy(address(strategyToken), address(0));
+        skip(2 weeks);
+        bentoBox.setStrategy(address(strategyToken), address(0));
+
+        uint256 elasticAfter = bentoBox.totals(address(strategyToken)).elastic;
+
+        uint256 diffElastic = elasticAfter - elasticBefore;
+
+        assertGt(diffElastic, 0);
+
+        assertEq(sToken.balanceOf(address(siloStrategy)), 0);
+    }
 }

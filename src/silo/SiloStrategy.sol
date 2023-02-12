@@ -100,9 +100,9 @@ contract SiloStrategy is BaseStrategy {
         uint256 available = strategyToken.balanceOf(address(silo));
 
         if (tokenBalance <= available) {
-            // If there are more tokens available than our full position, take all based on aToken balance (continue if unsuccessful).
+            // If there are more tokens available than our full position, take all based on sToken balance (continue if unsuccessful).
             try
-                silo.withdraw(address(strategyToken), tokenBalance, false)
+                silo.withdraw(address(strategyToken), type(uint256).max, false)
             {} catch {}
         } else {
             // Otherwise redeem all available and take a loss on the missing amount (continue if unsuccessful).
