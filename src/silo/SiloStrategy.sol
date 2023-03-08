@@ -6,6 +6,8 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 import {ISilo} from "../interfaces/silo/ISilo.sol";
+import {ISiloLens} from "../interfaces/silo/ISiloLens.sol";
+import {ISiloRepository} from "../interfaces/silo/ISiloRepository.sol";
 import {EasyMath} from "./lib/EasyMath.sol";
 
 /// @title Silo Strategy
@@ -19,6 +21,8 @@ contract SiloStrategy is BaseStrategy {
     //////////////////////////////////////////////////////////////*/
 
     ISilo public immutable silo;
+    ISiloLens public immutable siloLens;
+    ISiloRepository public immutable siloRepository;
     ERC20 public immutable sToken;
 
     /*//////////////////////////////////////////////////////////////
@@ -32,7 +36,9 @@ contract SiloStrategy is BaseStrategy {
     /// @param _feeTo address of the fee recipient
     /// @param _owner address of the owner of the strategy
     /// @param _fee fee of the strategy
-    /// @param _silo Address of the Silo
+    /// @param _siloAsset Address of the Silo Asset
+    /// @param _siloLens Address of the Silo Lens
+    /// @param _siloRepository Address of the Silo Repository
     constructor(
         address _bentoBox,
         address _strategyToken,
@@ -40,7 +46,9 @@ contract SiloStrategy is BaseStrategy {
         address _feeTo,
         address _owner,
         uint256 _fee,
-        address _silo
+        address _siloAsset,
+        address _siloLens,
+        address _siloRepository
     )
         BaseStrategy(
             _bentoBox,
@@ -51,9 +59,15 @@ contract SiloStrategy is BaseStrategy {
             _fee
         )
     {
-        silo = ISilo(_silo);
+        siloLens = ISiloLens(_siloLens);
+        siloRepository = ISiloRepository(_siloRepository);
+        silo = ISilo(siloRepository.getSilo(_siloAsset));
+        require(
+            address(silo) != address(0) &&
+                !siloRepository.isSiloPaused(address(silo), _strategyToken)
+        );
         sToken = ERC20(
-            ISilo(_silo).assetStorage(_strategyToken).collateralToken
+            ISilo(silo).assetStorage(_strategyToken).collateralToken
         );
     }
 
@@ -67,9 +81,10 @@ contract SiloStrategy is BaseStrategy {
         override
         returns (int256 amountAdded)
     {
-        uint256 assetTotalDeposits = silo
-            .assetStorage(address(strategyToken))
-            .totalDeposits;
+        uint256 assetTotalDeposits = siloLens.totalDepositsWithInterest(
+            silo,
+            address(strategyToken)
+        );
 
         uint256 currentBalance = (sToken.balanceOf(address(this))).toAmount(
             assetTotalDeposits,
@@ -88,16 +103,18 @@ contract SiloStrategy is BaseStrategy {
     }
 
     function _exit() internal override {
-        uint256 assetTotalDeposits = silo
-            .assetStorage(address(strategyToken))
-            .totalDeposits;
+        uint256 assetTotalDeposits = siloLens.totalDepositsWithInterest(
+            silo,
+            address(strategyToken)
+        );
 
         uint256 tokenBalance = (sToken.balanceOf(address(this))).toAmount(
             assetTotalDeposits,
             sToken.totalSupply()
         );
 
-        uint256 available = strategyToken.balanceOf(address(silo));
+        uint256 available = strategyToken.balanceOf(address(silo)) -
+            silo.assetStorage(address(strategyToken)).collateralOnlyDeposits;
 
         if (tokenBalance <= available) {
             // If there are more tokens available than our full position, take all based on sToken balance (continue if unsuccessful).
@@ -119,9 +136,10 @@ contract SiloStrategy is BaseStrategy {
         view
         returns (uint256 currentBalance)
     {
-        uint256 assetTotalDeposits = silo
-            .assetStorage(address(strategyToken))
-            .totalDeposits;
+        uint256 assetTotalDeposits = siloLens.totalDepositsWithInterest(
+            silo,
+            address(strategyToken)
+        );
 
         currentBalance = (sToken.balanceOf(address(this))).toAmount(
             assetTotalDeposits,

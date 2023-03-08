@@ -3,7 +3,6 @@ pragma solidity 0.8.10;
 
 import "forge-std/Test.sol";
 import {IBentoBoxMinimal} from "../src/interfaces/IBentoBoxMinimal.sol";
-import {IEulerMarkets} from "../src/interfaces/euler/IEulerMarket.sol";
 import {ISilo} from "../src/interfaces/silo/ISilo.sol";
 import {IStrategy} from "../src/interfaces/IStrategy.sol";
 import {SiloStrategy} from "../src/silo/SiloStrategy.sol";
@@ -11,15 +10,21 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 
 contract CounterTest is Test {
     IBentoBoxMinimal bentoBox =
-        IBentoBoxMinimal(0xF5BCE5077908a1b7370B9ae04AdC565EBd643966);
+        IBentoBoxMinimal(0x74c764D41B77DBbb4fe771daB1939B00b146894A);
 
-    address bentoBoxOwner = 0x19B3Eb3Af5D93b77a5619b047De0EED7115A19e7;
+    address bentoBoxOwner = 0x978982772b8e4055B921bf9295c0d74eB36Bc54e;
 
-    address silo = 0x2eaf84b425822edF450fC5FdeEc085f2e5aDa98b; // cbETH Silo
+    address silo = 0x7E38a9d2C99CaEf533E5D692ED8a2Ce4b478E585; // dpx Silo
 
-    ERC20 strategyToken = ERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); // WETH
+    address siloAsset = 0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55; // dpx
 
-    ERC20 sToken = ERC20(0x315c9c216BBA84017C2204b248F29023c04C4e07); // sToken for cbETH Silo
+    ERC20 strategyToken = ERC20(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1); // WETH
+
+    ERC20 sToken = ERC20(0xa3419787E4be2F74F9021171Cb70D36B21Ad6F24); // sToken for dpx weth silo
+
+    address siloLens = 0x2dD3fb3d8AaBdeCa8571BF5d5cC2969Cb563A6E9;
+
+    address siloRepository = 0x8658047e48CC09161f4152c79155Dac1d710Ff0a;
 
     SiloStrategy siloStrategy;
 
@@ -39,7 +44,9 @@ contract CounterTest is Test {
             feeTo,
             owner,
             STRATEGY_FEE,
-            silo
+            siloAsset,
+            siloLens,
+            siloRepository
         );
 
         vm.startPrank(bentoBoxOwner);
